@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Slip Splitter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-3xl shadow-xl w-full max-w-md">
+        <h1 class="text-xl font-bold text-slate-800 mb-4 text-center">อัปโหลดสลิป</h1>
+
+        <!-- ฟอร์มสำหรับอัปโหลดรูป -->
+        <form id="uploadForm" class="space-y-4">
+            <div class="border-2 border-dashed border-slate-300 rounded-2xl p-6 flex flex-col items-center justify-center bg-slate-50">
+                <div class="w-10 h-10 bg-emerald-700 text-white rounded-full flex items-center justify-center text-xl font-bold mb-2">↑</div>
+                <label for="slipInput" class="text-sm font-medium text-emerald-700 cursor-pointer hover:underline mb-2">
+                    คลิกที่นี่เพื่อเลือกรูปสลิป
+                </label>
+                <input type="file" id="slipInput" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer" required>
+            </div>
+
+            <button type="submit" class="w-full bg-emerald-800 text-white py-3 rounded-xl font-medium hover:bg-emerald-900 transition shadow-md">
+                วิเคราะห์สลิปด้วย AI
+            </button>
+        </form>
+
+        <!-- สถานะกำลังโหลด -->
+        <div id="loading" class="hidden mt-4 text-center text-emerald-700 font-medium animate-pulse">
+            กำลังอ่านสลิปด้วย AI กรุณารอสักครู่...
+        </div>
+
+        <!-- กล่องแสดงผลข้อมูลสลิปที่อ่านได้จริง -->
+        <div id="resultCard" class="hidden mt-6 bg-slate-900 text-white p-5 rounded-2xl shadow-lg space-y-3">
+            <div class="flex justify-between items-center text-xs text-slate-400">
+                <span>ยอดโอนเงิน • อ่านจาก AI</span>
+                <span class="bg-emerald-700 text-white px-2 py-0.5 rounded text-[10px]">ตรวจสอบแล้ว</span>
+            </div>
+            <div>
+                <h2 id="resAmount" class="text-3xl font-bold tracking-tight">ผลลัพธ์จาก AI</h2>
+            </div>
+            <div id="resDetails" class="text-xs text-slate-300 space-y-1 border-t border-slate-800 pt-2 whitespace-pre-wrap">
+                <!-- รายละเอียดเพิ่มเติมจะแสดงที่นี่ -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const slipInput = document.getElementById('slipInput');
+        const loading = document.getElementById('loading');
+        const resultCard = document.getElementById('resultCard');
+        const resAmount = document.getElementById('resAmount');
+        const resDetails = document.getElementById('resDetails');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (slipInput.files.length === 0) {
+                alert('กรุณาเลือกรูปสลิปก่อนครับ');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('slipImage', slipInput.files[0]);
+
+            loading.classList.remove('hidden');
+            resultCard.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/split-slip', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    resDetails.textContent = data.aiResult;
+                    resultCard.classList.remove('hidden');
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + data.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
+            } finally {
+                loading.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
