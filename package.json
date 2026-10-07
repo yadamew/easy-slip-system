@@ -2,11 +2,24 @@
   "name": "easy-slip-system",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test ai-retry.test.mjs slip-ocr.test.mjs && node verify-project.mjs && node verify-ui.mjs",
+    "check:openai": "node check-openai.mjs",
+    "setup:ocr": "node setup-ocr.mjs"
+  },
   "dependencies": {
-    "@google/genai": "^2.24.0",
     "cors": "^2.8.6",
     "dotenv": "^18.0.4",
     "express": "^5.2.1",
-    "multer": "^2.4.0"
+    "jsqr": "^1.4.0",
+    "multer": "^2.4.0",
+    "openai": "^7.28.0",
+    "sharp": "^0.35.5",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "qrcode": "^1.5.4"
   }
 }

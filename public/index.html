@@ -1,91 +1,168 @@
 <!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Easy Slip Splitter</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white p-6 rounded-3xl shadow-xl w-full max-w-md">
-        <h1 class="text-xl font-bold text-slate-800 mb-4 text-center">อัปโหลดสลิป</h1>
+<html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#fffaf2"><title>Easy Slip Splitter</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="polish.css"><link rel="stylesheet" href="typography.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Mali:wght@600;700&amp;family=Noto+Sans+Thai:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link rel="stylesheet" href="pastel.css"><link rel="stylesheet" href="payments.css"><link rel="stylesheet" href="history.css"><link rel="stylesheet" href="budget.css"><link rel="stylesheet" href="home.css"></head>
+<body><main class="phone">
+<svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 7h6M9 11h6M9 15h3"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24"><path d="M20 8H5a2 2 0 0 1 0-4h13v4M4 6v12a2 2 0 0 0 2 2h14V8"/><path d="M20 12h-5v4h5M16 14h1"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="m10 5-7 7 7 7M3 12h18"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+<symbol id="i-history" viewBox="0 0 24 24"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6M12 7v5l3 2"/></symbol>
+</defs></svg>
+<section id="homePage" class="page home"><div class="brand-icon"><svg class="icon" aria-hidden="true"><use href="#i-wallet"/></svg></div><span class="brand-caption">แบ่งง่าย · วางแผนได้</span><h1>Easy Slip Splitter</h1><p>เรื่องเงินง่ายขึ้น แบ่งกับเพื่อนก็สบายใจ 🌱</p>
+<button class="mode selected" onclick="openSlipMode()"><span class="mode-icon emoji" aria-hidden="true">🧾</span><small>มีสลิปโอนเงิน</small><strong>อ่านสลิปและหารเงิน</strong><span>อัปโหลดสลิป ตรวจยอด<br>แล้วแบ่งค่าใช้จ่ายกับเพื่อน</span><span class="mode-action">เริ่มหารบิล <span aria-hidden="true">→</span></span></button>
+<button class="mode" onclick="openBudgetMode()"><span class="mode-icon amber emoji" aria-hidden="true">💰</span><small class="gold">กรอกตัวเลข</small><strong>วางแผนงบประมาณ</strong><span>แบ่งเงินใช้ เงินออม และเงินสำรอง<br>ให้เห็นภาพชัดขึ้น</span><span class="mode-action">เริ่มวางแผน <span aria-hidden="true">→</span></span></button>
+<div class="home-secondary"><button type="button" class="text history-button" onclick="openHistory()"><span aria-hidden="true">🕘</span> ดูประวัติของคุณ <span aria-hidden="true">→</span></button><span class="free"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg> ใช้งานฟรี</span></div><footer class="home-footer"><strong>Easy Slip Splitter</strong><p>ช่วยให้การหารเงินและวางแผนงบประมาณง่ายขึ้น</p></footer></section>
+<section id="slipPage" class="page hidden"><header><button class="back" onclick="goHome()" aria-label="กลับหน้าแรก"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button><h1>อัปโหลดสลิป</h1></header>
+<form id="uploadForm"><label class="upload" for="slipInput"><span class="upload-icon"><svg class="icon" aria-hidden="true"><use href="#i-upload"/></svg></span><strong>เลือกรูปสลิป</strong><span>แตะเพื่อถ่ายรูปหรือเลือกจากเครื่อง</span><span>JPEG, PNG หรือ WebP ไม่เกิน 10 MB</span><input id="slipInput" type="file" accept="image/jpeg,image/png,image/webp" required></label><button id="slipButton" class="primary">อ่านสลิปอัตโนมัติ</button></form>
+<p id="loading" class="hidden" role="status">กำลังอ่านข้อความจากรูปบนเครื่อง กรุณารอสักครู่...</p>
+<div id="resultCard" class="hidden"><h2 class="review-title">ตรวจสอบข้อมูลสลิป</h2><p class="hint">OCR อาจอ่านคลาดเคลื่อน กรุณาตรวจข้อมูลและยอดก่อนยืนยัน</p><div id="ocrFields" class="ocr-fields"></div><div class="slip-card"><p>ยอดโอนเงิน · อ่านจากรูปสลิป</p><label class="amount">฿<input id="slipAmount" type="number" min="0.01" step="0.01" placeholder="0.00" aria-label="ยอดเงินที่ต้องการหาร"></label><div class="slip-footer"><span>โปรดตรวจยอดกับสลิปจริง</span><span class="badge">รอยืนยัน</span></div><details><summary>ดูข้อมูลที่อ่านได้</summary><div id="resDetails" class="pre"></div></details></div><button id="confirmSlip" class="primary">ยืนยันยอดนี้ ถูกต้อง</button><p class="hint">อ่านไม่ตรง? แก้ไขยอดด้านบนได้ด้วยตนเอง</p></div>
+<button id="manualSlip" class="text">กรอกยอดด้วยตนเอง</button></section>
+<section id="membersPage" class="page hidden">
+<header><button class="back" onclick="showPage('slipPage')" aria-label="กลับไปตรวจยอด"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button><h1>หารกับใครบ้าง?</h1></header>
+<div class="soft bill-total"><span>ยอดบิลทั้งหมด</span><strong id="membersTotal"></strong></div>
+<label class="equal-option"><span><strong>หารเท่ากันทุกคน</strong><small>ระบบแบ่งยอดให้ตามจำนวนคนอัตโนมัติ</small></span><input id="equalSplit" type="checkbox" checked></label>
+<p id="splitModeHint" class="hint">ปิดตัวเลือกนี้ หากต้องการกำหนดยอดแต่ละคนเอง</p>
+<div id="membersList"></div><button id="addMember" class="secondary">+ เพิ่มเพื่อน</button>
+<div class="allocation-summary" aria-live="polite"><div><span>ยอดที่แบ่งแล้ว</span><strong id="allocatedTotal">฿0.00</strong></div><div><span>ยอดที่ยังไม่ได้แบ่ง</span><strong id="remainingTotal">฿0.00</strong></div><p id="splitWarning" class="split-warning hidden" role="alert"></p><button id="calculateSplit" class="primary">ยืนยันการหารบิล</button></div>
+</section>
+<section id="summaryPage" class="page hidden"><header><button class="back" onclick="showPage('membersPage')" aria-label="กลับไปแก้คนหาร"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button><h1>สรุปผลการหาร</h1></header><p class="success-note">เรียบร้อยแล้ว ✨</p><div class="summary-total"><span>ยอดรวมทั้งบิล</span><strong id="summaryTotal"></strong></div><div id="splitRows"></div><div class="payment-summary" aria-live="polite"><p id="paidCount"></p><div><span>รับเงินแล้ว</span><strong id="receivedTotal"></strong></div><div><span>เหลือรับเงิน</span><strong id="unpaidTotal"></strong></div></div><p class="hint">เจ้าของบิลกดสถานะเอง ไม่ได้ตรวจสอบกับธนาคาร</p><button id="copySplit" class="primary">คัดลอกข้อความส่งเข้ากลุ่ม</button><button id="saveSplit" class="secondary">บันทึกประวัติ</button><button class="text" onclick="goHome()">กลับหน้าแรก</button></section>
+<section id="budgetPage" class="page hidden"><header><button class="back" onclick="goHome()" aria-label="กลับหน้าแรก"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button><h1>💰 วางแผนงบประมาณ</h1></header><p class="budget-intro">จัดสรรเงินของคุณให้ง่ายขึ้น</p><form id="budgetForm"><label for="budgetAmount">จำนวนเงินที่ต้องการวางแผน</label><div class="budget-input">฿<input id="budgetAmount" type="number" min="0.01" step="0.01" placeholder="50,000" required></div><p id="budgetAmountPreview" class="hint" aria-live="polite"></p><p>เป้าหมายของคุณ</p><div class="goals"><button type="button" data-goal="saving" class="selected" aria-pressed="true"><strong>🌱 เก็บออม</strong><span>อยากแบ่งเงินไว้สำหรับอนาคต</span></button><button type="button" data-goal="big_purchase" aria-pressed="false"><strong>🛍️ ซื้อของชิ้นใหญ่</strong><span>วางแผนก่อนซื้อของที่ต้องการ</span></button><button type="button" data-goal="enough" aria-pressed="false"><strong>🧾 เช็กว่าพอใช้ไหม</strong><span>ช่วยแบ่งเงินสำหรับค่าใช้จ่าย</span></button><button type="button" id="otherGoal" data-goal="other" aria-pressed="false"><strong>✨ อื่น ๆ</strong><span>วางแผนงบประมาณทั่วไป</span></button></div><div id="customGoalField" class="hidden"><label for="customGoal">เป้าหมายเพิ่มเติม</label><div class="budget-input"><input id="customGoal" type="text" maxlength="200" placeholder="เช่น เก็บเงินเรียนต่อ" disabled></div></div><button id="budgetButton" class="primary">✨ สร้างแผนงบประมาณ</button></form></section>
+<section id="budgetResultPage" class="page hidden"><header><button class="back" onclick="showPage('budgetPage')" aria-label="กลับไปแก้แผน"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button><h1>✨ แผนของคุณ</h1></header><p class="success-note">จัดเงินให้แล้ว พร้อมเริ่มได้เลย ✨</p><div class="soft plan"><span>จากเงินทั้งหมด</span><strong id="planHighlight"></strong><span id="planGoal"></span></div><section class="budget-overview" aria-label="สัดส่วนการจัดสรร"><h2>แบ่งเงินเป็นสัดส่วน</h2><div id="allocationBar" class="allocation-bar" role="img"></div><div id="allocationLegend" class="allocation-legend"></div></section><div id="budgetBars"></div><div class="budget-totals"><div><span>ยอดทั้งหมด</span><strong id="budgetTotal"></strong></div><div><span>จัดสรรแล้ว</span><strong id="budgetAllocated"></strong></div><div><span>คงเหลือ</span><strong id="budgetRemaining"></strong></div><p id="budgetComplete" class="success-note"></p></div><p class="hint">แผนนี้เป็นแนวทางเบื้องต้น คุณสามารถปรับให้เหมาะกับการใช้เงินของคุณได้</p><button id="saveBudget" class="primary">💾 บันทึกแผน</button><p id="planAdvice" class="hint"></p><button class="text" onclick="showPage('budgetPage')">↻ วางแผนใหม่</button></section>
+<section id="historyPage" class="page hidden"><header><button class="back" onclick="goHome()" aria-label="กลับหน้าแรก"><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button><h1>ประวัติของคุณ</h1></header><p class="hint">บันทึกเฉพาะในเบราว์เซอร์บนเครื่องนี้</p><div class="history-counts"><span id="historyBillCount"></span><span id="historyBudgetCount"></span></div><div class="history-filters"><button id="historyAll" type="button">ทั้งหมด</button><button id="historyBills" type="button">หารบิล</button><button id="historyBudgets" type="button">งบประมาณ</button></div><div id="historyList"></div><button id="clearHistory" class="text history-clear">ล้างประวัติทั้งหมด</button></section>
+<p id="notice" class="notice hidden" role="status" aria-live="polite"></p>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let selectedGoal = 'saving', totalCents = 0, split = [], budgetPlan = null, noticeTimer;
+const money = n => '฿' + Number(n).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+function notify(message){ $('notice').textContent=message; $('notice').classList.remove('hidden'); clearTimeout(noticeTimer); noticeTimer=setTimeout(()=>$('notice').classList.add('hidden'),6000); }
+function showPage(id){ document.querySelectorAll('.page').forEach(p=>p.classList.toggle('hidden',p.id!==id)); $('notice').classList.add('hidden'); window.scrollTo(0,0); }
+function goHome(){showPage('homePage');} function openSlipMode(){showPage('slipPage');} function openBudgetMode(){showPage('budgetPage');}
+function cents(value){const n=Number(value),c=Math.round(n*100);if(!Number.isFinite(n)||n<0||!Number.isSafeInteger(c)||c/100!==n)throw new Error('กรุณากรอกจำนวนเงินถูกต้อง ทศนิยมไม่เกิน 2 ตำแหน่ง');return c;}
+async function requestAI(url,options){const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),url.includes('split-slip')?390000:15000);try{const response=await fetch(url,{...options,signal:controller.signal});let data;try{data=await response.json();}catch{throw new Error('เซิร์ฟเวอร์ตอบไม่ถูกต้อง กรุณาเปิดเว็บผ่านเซิร์ฟเวอร์');}if(!response.ok||!data.success)throw new Error(data.error||'เกิดข้อผิดพลาด กรุณาลองใหม่');return data;}catch(error){if(error.name==='AbortError')throw new Error('ใช้เวลานานเกินไป กรุณาลองใหม่');if(error instanceof TypeError)throw new Error('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');throw error;}finally{clearTimeout(timeout);}}
+$('slipInput').onchange=()=>{$('resultCard').classList.add('hidden');$('slipAmount').value='';$('ocrFields').replaceChildren();};
+$('uploadForm').addEventListener('submit',async event=>{event.preventDefault();if($('slipButton').disabled)return;const file=$('slipInput').files[0];if(!file||!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>10*1024*1024)return notify('เลือกรูป JPEG, PNG หรือ WebP ไม่เกิน 10 MB');const body=new FormData();body.append('slipImage',file);$('slipButton').disabled=true;$('loading').classList.remove('hidden');$('resultCard').classList.add('hidden');try{const data=await requestAI('/api/split-slip',{method:'POST',body});$('resDetails').textContent=data.aiResult;const match=data.aiResult.match(/(?:จำนวนเงิน|ยอดโอน|ยอดเงิน|amount)[^\d\n]*([\d,]+(?:\.\d{1,2})?)/i);$('slipAmount').value=data.fields?.amount ?? (match?match[1].replaceAll(',',''):'');$('ocrFields').replaceChildren();const labels={date:'วันที่',time:'เวลา',sender:'ชื่อผู้โอน',recipient:'ชื่อผู้รับ'};Object.entries(data.fields||{}).forEach(([key,value])=>{if(labels[key])$('ocrFields').append(element('p','',labels[key]+': '+value));});if(data.warning)$('ocrFields').append(element('p','hint',data.warning));if(data.qrNotice)$('ocrFields').append(element('p','hint',data.qrNotice));if(data.needsManualAmount)$('ocrFields').append(element('p','hint','อ่านยอดเงินไม่พบ กรุณากรอกยอดด้านล่าง'));$('resultCard').classList.remove('hidden');}catch(error){$('manualSlip').onclick();$('resDetails').textContent=error.message+' — สามารถกรอกยอดเองแล้วกดยืนยันเพื่อทำต่อได้';notify(error.message+' กรอกยอดเองด้านล่างได้เลย');}finally{$('slipButton').disabled=false;$('loading').classList.add('hidden');}});
+$('manualSlip').onclick=()=>{$('resultCard').classList.remove('hidden');$('ocrFields').replaceChildren();$('resDetails').textContent='กรอกยอดด้วยตนเอง กรุณาตรวจยอดจากสลิปจริง';$('slipAmount').value='';$('slipAmount').focus();};
+$('confirmSlip').onclick=()=>{try{totalCents=cents($('slipAmount').value);if(!totalCents)throw new Error('กรุณากรอกยอดเงินมากกว่า 0');$('membersTotal').textContent=money(totalCents/100);if(!$('membersList').children.length){addMember();addMember();}updateAllocation();showPage('membersPage');}catch(error){notify(error.message);}};
+function element(tag,className,text){const node=document.createElement(tag);node.className=className||'';if(text!==undefined)node.textContent=text;return node;}
+function addMember(){
+  const row=element('div','member'),avatar=element('span','avatar','ค'),fields=element('div','member-fields');
+  const nameLabel=element('label','member-label','ชื่อ'),name=element('input','member-name');name.placeholder='ชื่อเพื่อน';name.maxLength=60;name.setAttribute('aria-label','ชื่อเพื่อน');nameLabel.append(name);
+  const amountLabel=element('label','member-label','ยอดที่ต้องจ่าย'),amount=element('input','member-amount');amount.type='number';amount.min='0';amount.step='0.01';amount.placeholder='0.00';amount.setAttribute('aria-label','ยอดที่ต้องจ่าย');amount.oninput=updateAllocation;amountLabel.append(amount);
+  name.oninput=()=>avatar.textContent=name.value.trim().slice(0,1)||'ค';fields.append(nameLabel,amountLabel);
+  const remove=element('button','remove','×');remove.setAttribute('aria-label','ลบสมาชิก');remove.onclick=()=>{row.remove();updateAllocation();};row.append(avatar,fields,remove);$('membersList').append(row);updateAllocation();
+}
+$('equalSplit').checked=true;
+$('equalSplit').onchange=updateAllocation;
+function updateAllocation(){
+  const rows=[...$('membersList').children],equal=$('equalSplit').checked;
+  let allocated=0,invalid=false;
+  rows.forEach((row,index)=>{const amount=row.querySelector('.member-amount');amount.readOnly=equal;if(equal)amount.value=((Math.floor(totalCents/rows.length)+(index<totalCents%rows.length?1:0))/100).toFixed(2);try{allocated+=cents(amount.value);}catch{invalid=true;}});
+  if(!Number.isSafeInteger(allocated))invalid=true;
+  const remaining=totalCents-allocated;
+  $('allocatedTotal').textContent=invalid?'กรุณาตรวจยอด':money(allocated/100);
+  $('remainingTotal').textContent=invalid?'—':money(Math.max(0,remaining)/100);
+  const message=invalid?'กรุณากรอกยอดที่ถูกต้อง ทศนิยมไม่เกิน 2 ตำแหน่ง':remaining<0?'ยอดที่แบ่งเกินยอดบิล '+money(-remaining/100)+' กรุณาลดยอดที่ต้องจ่าย':'';
+  $('splitWarning').textContent=message;$('splitWarning').classList.toggle('hidden',!message);
+  $('remainingTotal').classList.toggle('over-budget',remaining<0||invalid);
+  $('splitModeHint').textContent=equal?'ยอดต่อคนอาจต่างกัน 0.01 บาท เพื่อให้รวมตรงกับยอดบิล':'กรอกยอดของแต่ละคนให้รวมเท่ากับยอดบิลทั้งหมด';
+}
+$('addMember').onclick=addMember;
+$('calculateSplit').onclick=()=>{try{updateAllocation();const rows=[...$('membersList').children];if(!rows.length)throw new Error('กรุณาเพิ่มคนร่วมจ่าย');const people=rows.map(row=>{const name=row.querySelector('.member-name').value.trim();if(!name)throw new Error('กรุณากรอกชื่อทุกคน');return{name,note:'',cents:cents(row.querySelector('.member-amount').value)};});const allocated=people.reduce((sum,p)=>sum+p.cents,0);if(!Number.isSafeInteger(allocated)||allocated>totalCents)throw new Error('ยอดที่แบ่งเกินยอดรวม กรุณาตรวจอีกครั้ง');if(allocated!==totalCents)throw new Error('ยังมียอดที่ไม่ได้แบ่ง กรุณากรอกยอดให้ครบหรือเปิดหารเท่ากันทุกคน');split=people.map(person=>({...person,isPaid:false}));savedSplitId=null;renderSplitSummary();showPage('summaryPage');}catch(error){notify(error.message);}};
+let savedSplitId=null;
+function paymentTotals(){return {count:split.filter(person=>person.isPaid).length,received:split.reduce((sum,person)=>sum+(person.isPaid?person.cents:0),0)};}
+function renderSplitSummary(){
+  $('summaryTotal').textContent=money(totalCents/100);$('splitRows').replaceChildren();
+  split.forEach((person,index)=>{
+    const row=element('div','split-row payment-row');
+    const info=element('div','payment-person');info.append(element('span','payment-name',person.name+(person.isPaid?' ✓':'')),element('span','payment-amount','ยอดที่ต้องจ่าย '+money(person.cents/100)));
+    const status=element('button','payment-status'+(person.isPaid?' paid':''),person.isPaid?'✓ จ่ายแล้ว':'ยังไม่จ่าย');status.type='button';status.setAttribute('aria-pressed',String(person.isPaid));status.setAttribute('aria-label',person.name+' '+(person.isPaid?'จ่ายแล้ว':'ยังไม่จ่าย')+' กดเพื่อเปลี่ยนสถานะ');
+    status.onclick=()=>{person.isPaid=!person.isPaid;renderSplitSummary();persistPaidStatus();};
+    row.append(element('span','avatar color-'+index%4,person.name.slice(0,1)),info,status);$('splitRows').append(row);
+  });
+  const totals=paymentTotals();$('paidCount').textContent='จ่ายแล้ว '+totals.count+' / '+split.length+' คน';$('receivedTotal').textContent=money(totals.received/100);$('unpaidTotal').textContent=money((totalCents-totals.received)/100);
+}
+function splitText(){const totals=paymentTotals();return ['สรุปยอด Easy Slip Splitter 🧾','ยอดรวม '+money(totalCents/100),'',...split.map(person=>person.name+': '+money(person.cents/100)+' - '+(person.isPaid?'จ่ายแล้ว':'ยังไม่จ่าย')),'','จ่ายแล้ว '+totals.count+' / '+split.length+' คน','รับเงินแล้ว '+money(totals.received/100),'เหลือรับเงิน '+money((totalCents-totals.received)/100)].join('\n');}
+function persistPaidStatus(){
+  if(!savedSplitId)return false;
+  try{const entries=JSON.parse(localStorage.getItem('easy-slip-history')||'[]');if(!Array.isArray(entries))throw new Error();const entry=entries.find(item=>item.id===savedSplitId);if(!entry){savedSplitId=null;notify('ไม่พบประวัติบิลนี้ กรุณากดบันทึกอีกครั้ง');return false;}entry.text=splitText();entry.totalCents=totalCents;entry.people=split.map(person=>({...person}));localStorage.setItem('easy-slip-history',JSON.stringify(entries));return true;}
+  catch{notify('อัปเดตสถานะในหน้าสรุปแล้ว แต่บันทึกประวัติไม่ได้ กรุณาลองบันทึกใหม่');return false;}
+}
+$('copySplit').onclick=async()=>{try{await navigator.clipboard.writeText(splitText());notify('คัดลอกแล้ว นำไปวางในกลุ่มได้เลย');}catch{const box=element('textarea','copy-fallback');box.value=splitText();$('splitRows').append(box);box.select();notify('คัดลอกอัตโนมัติไม่ได้ กรุณาคัดลอกจากช่องข้อความ');}};
+document.querySelectorAll('[data-goal]').forEach(button=>button.onclick=()=>{selectedGoal=button.dataset.goal;const other=selectedGoal==='other';$('customGoalField').classList.toggle('hidden',!other);$('customGoal').disabled=!other;$('customGoal').required=false;if(other)$('customGoal').focus();document.querySelectorAll('[data-goal]').forEach(item=>{item.classList.toggle('selected',item===button);item.setAttribute('aria-pressed',String(item===button));});});
+$('budgetForm').addEventListener('submit',async event=>{event.preventDefault();const button=$('budgetButton');if(button.disabled)return;try{if(cents($('budgetAmount').value)<=0)throw new Error('กรุณากรอกจำนวนเงินมากกว่า 0');}catch(error){return notify(error.message);}if(!selectedGoal)return notify('กรุณาเลือกเป้าหมายทางการเงิน');button.disabled=true;button.textContent='กำลังจัดสัดส่วน...';try{const data=await requestAI('/api/budget-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:$('budgetAmount').value,goal:selectedGoal,customGoal:selectedGoal==='other'?$('customGoal').value.trim():undefined})});budgetPlan=data;renderBudgetPlan(data);showPage('budgetResultPage');}catch(error){notify(error.message);}finally{button.disabled=false;button.textContent='✨ สร้างแผนงบประมาณ';}});
+function saveHistory(type,text,extra={}){try{const entries=JSON.parse(localStorage.getItem('easy-slip-history')||'[]');if(!Array.isArray(entries))throw new Error();const id=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);entries.unshift({...extra,id,type,text,date:new Date().toISOString()});localStorage.setItem('easy-slip-history',JSON.stringify(entries.slice(0,50)));notify('บันทึกไว้ในเครื่องนี้แล้ว');return id;}catch{notify('บันทึกไม่ได้ กรุณาตรวจการอนุญาตจัดเก็บข้อมูลของเบราว์เซอร์');return null;}}
+$('saveSplit').onclick=()=>{if(!split.length)return;if(savedSplitId){if(persistPaidStatus())notify('อัปเดตประวัติบิลนี้แล้ว');}else savedSplitId=saveHistory('สรุปผลการหาร',splitText(),{totalCents,people:split.map(person=>({...person}))});};$('saveBudget').onclick=()=>{if(budgetPlan)saveHistory('แผนงบประมาณ',budgetPlan.aiResult,{amount:budgetPlan.amount,goal:budgetPlan.goal,categories:budgetPlan.categories.map(category=>({...category})),total:budgetPlan.total,advice:budgetPlan.advice});};
+function openHistory(){showPage('historyPage');historyFilter='all';renderHistory();}
+let historyFilter='all';
+function readHistoryEntries(){const entries=JSON.parse(localStorage.getItem('easy-slip-history')||'[]');if(!Array.isArray(entries))throw new Error('Invalid history');return entries;}
+function historyBill(entry){
+  if(Array.isArray(entry.people)&&entry.people.length&&Number.isSafeInteger(entry.totalCents)&&entry.people.every(p=>typeof p.name==='string'&&Number.isSafeInteger(p.cents)&&p.cents>=0)&&entry.people.reduce((sum,p)=>sum+p.cents,0)===entry.totalCents)return {totalCents:entry.totalCents,people:entry.people.map(p=>({...p,isPaid:p.isPaid===true}))};
+  const text=typeof entry.text==='string'?entry.text:'';
+  const total=text.match(/ยอดรวม(?:ทั้งบิล)?\s*฿?\s*([\d,]+(?:\.\d{1,2})?)/);
+  if(!total)return null;
+  const people=text.split('\n').map(line=>line.match(/^(.+?):\s*฿([\d,]+(?:\.\d{1,2})?)(?:\s*-\s*(จ่ายแล้ว|ยังไม่จ่าย))?(?:\s*\(.*\))?\s*$/)).filter(Boolean).map(m=>({name:m[1].trim(),cents:Math.round(Number(m[2].replaceAll(',',''))*100),isPaid:m[3]==='จ่ายแล้ว',note:''}));
+  const totalCents=Math.round(Number(total[1].replaceAll(',',''))*100);
+  return people.length&&Number.isSafeInteger(totalCents)&&people.every(p=>Number.isSafeInteger(p.cents)&&p.cents>=0)&&people.reduce((sum,p)=>sum+p.cents,0)===totalCents?{totalCents,people}:null;
+}
+function historyBillText(bill){const paid=bill.people.filter(p=>p.isPaid),received=paid.reduce((sum,p)=>sum+p.cents,0);return ['สรุปยอด Easy Slip Splitter 🧾','ยอดรวม '+money(bill.totalCents/100),'',...bill.people.map(p=>p.name+': '+money(p.cents/100)+' - '+(p.isPaid?'จ่ายแล้ว':'ยังไม่จ่าย')),'','จ่ายแล้ว '+paid.length+' / '+bill.people.length+' คน','รับเงินแล้ว '+money(received/100),'เหลือรับเงิน '+money((bill.totalCents-received)/100)].join('\n');}
+function historyDate(value){const date=new Date(value);return Number.isNaN(date.getTime())?'ไม่พบวันที่':date.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric',timeZone:'Asia/Bangkok'})+' • '+date.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Bangkok'});}
+function setHistoryFilter(value){historyFilter=value;renderHistory();}
+function renderHistory(openIndex=-1){
+  $('historyList').replaceChildren();
+  try{
+    const entries=readHistoryEntries();
+    $('historyBillCount').textContent='🧾 บิลที่หาร '+entries.filter(e=>e.type==='สรุปผลการหาร').length;
+    $('historyBudgetCount').textContent='💰 แผนงบประมาณ '+entries.filter(e=>e.type==='แผนงบประมาณ').length;
+    [['historyAll','all'],['historyBills','bill'],['historyBudgets','budget']].forEach(([id,type])=>{$(id).classList.toggle('selected',historyFilter===type);$(id).setAttribute('aria-pressed',String(historyFilter===type));});
+    $('clearHistory').classList.toggle('hidden',entries.length===0);
+    let visible=0;
+    entries.forEach((entry,index)=>{
+      const isBill=entry.type==='สรุปผลการหาร';if(historyFilter==='bill'&&!isBill||historyFilter==='budget'&&entry.type!=='แผนงบประมาณ')return;visible++;
+      const card=element('article','history-entry'+(isBill?' bill-entry':' budget-entry'));
+      card.append(element('h2','history-title',isBill?'🧾 หารบิล':entry.type==='แผนงบประมาณ'?'💰 แผนงบประมาณ':entry.type||'รายการที่บันทึก'),element('p','history-date',historyDate(entry.date)));
+      const bill=isBill?historyBill(entry):null;
+      const text=typeof entry.text==='string'?entry.text:'';
+      const amount=text.match(/(?:จำนวนเงินทั้งหมด|จำนวนเงิน|ยอดรวม)\s*[:：]?\s*฿?\s*([\d,]+(?:\.\d{1,2})?)/);
+      card.append(element('span','history-money-label',isBill?'ยอดรวม':'จำนวนเงิน'),element('strong','history-money',bill?money(bill.totalCents/100):amount?money(Number(amount[1].replaceAll(',',''))):'ดูข้อมูลในรายละเอียด'));
+      if(bill){const count=bill.people.filter(p=>p.isPaid).length,received=bill.people.filter(p=>p.isPaid).reduce((sum,p)=>sum+p.cents,0);const metrics=element('div','history-metrics');metrics.append(element('span','','👥 '+bill.people.length+' คน'),element('span','','จ่ายแล้ว '+count+'/'+bill.people.length),element('span','','เหลือรับ '+money((bill.totalCents-received)/100)));card.append(metrics,element('span','history-badge'+(count===bill.people.length?' complete':''),count===bill.people.length?'✓ จ่ายครบแล้ว':'รอชำระ'));}
+      else if(!isBill){const goal=text.match(/(?:แผนการเงิน|เป้าหมาย)\s*[:：]\s*([^\n]+)/);if(goal)card.append(element('p','history-goal','เป้าหมาย: '+goal[1]));}
+      const toggle=element('button','secondary history-expand','ดูรายละเอียด'),detail=element('div','history-detail');let expanded=index===openIndex;
+      detail.classList.toggle('hidden',!expanded);toggle.setAttribute('aria-expanded',String(expanded));toggle.onclick=()=>{expanded=!expanded;detail.classList.toggle('hidden',!expanded);toggle.textContent=expanded?'ซ่อนรายละเอียด':'ดูรายละเอียด';toggle.setAttribute('aria-expanded',String(expanded));};if(expanded)toggle.textContent='ซ่อนรายละเอียด';
+      detail.append(element('h3','',isBill?'รายละเอียดการหาร':'สัดส่วนงบประมาณที่บันทึกไว้'));
+      if(bill){
+        bill.people.forEach((person,personIndex)=>{const row=element('div','history-person');const status=element('button','history-paid'+(person.isPaid?' paid':''),person.isPaid?'✓ จ่ายแล้ว':'ยังไม่จ่าย');status.setAttribute('aria-pressed',String(person.isPaid));status.setAttribute('aria-label','เปลี่ยนสถานะของ '+person.name);status.onclick=()=>updateHistoryPaid(entry,index,personIndex);row.append(element('span','',person.name),element('strong','',money(person.cents/100)),status);detail.append(row);});
+        const received=bill.people.filter(p=>p.isPaid).reduce((sum,p)=>sum+p.cents,0),totals=element('div','history-receipts');for(const [label,value] of [['รับเงินแล้ว',received],['เหลือรับเงิน',bill.totalCents-received]]){const row=element('div','');row.append(element('span','',label),element('strong','',money(value/100)));totals.append(row);}detail.append(totals);
+      }else detail.append(element('p','pre history-original',text||'ไม่มีรายละเอียด'));
+      const actions=element('div','history-actions'),copy=element('button','secondary history-copy','คัดลอกข้อความ'),remove=element('button','text history-delete','ลบรายการ');
+      copy.onclick=async()=>{try{await navigator.clipboard.writeText(bill?historyBillText(bill):text);notify('คัดลอกข้อความแล้ว');}catch{const box=element('textarea','copy-fallback');box.value=bill?historyBillText(bill):text;detail.append(box);box.select();notify('กรุณาคัดลอกจากช่องข้อความ');}};
+      remove.onclick=()=>{if(!confirm('ลบรายการนี้จากประวัติ?'))return;try{const current=readHistoryEntries(),position=findHistoryEntry(current,entry,index);if(position<0)throw new Error();current.splice(position,1);localStorage.setItem('easy-slip-history',JSON.stringify(current));if(entry.id===savedSplitId)savedSplitId=null;renderHistory();notify('ลบรายการแล้ว');}catch{notify('ลบไม่ได้ กรุณาลองใหม่');}};
+      actions.append(copy,remove);detail.append(actions);card.append(toggle,detail);$('historyList').append(card);
+    });
+    if(!visible){const empty=element('div','history-empty');empty.append(element('h2','',entries.length?'ยังไม่มีรายการในหมวดนี้':'✨ ยังไม่มีประวัติ'),element('p','',entries.length?'ลองเลือกตัวกรองทั้งหมด':'เมื่อคุณหารบิลหรือวางแผนงบประมาณ รายการที่บันทึกจะมาอยู่ตรงนี้'));const home=element('button','secondary','กลับหน้าแรก');home.onclick=goHome;empty.append(home);$('historyList').append(empty);}
+  }catch{notify('ไม่สามารถอ่านประวัติในเครื่องนี้ได้');}
+}
+function findHistoryEntry(entries,entry,index){if(entry.id)return entries.findIndex(e=>e.id===entry.id);return entries[index]?.date===entry.date&&entries[index]?.text===entry.text?index:-1;}
+function updateHistoryPaid(entry,index,personIndex){try{const entries=readHistoryEntries(),position=findHistoryEntry(entries,entry,index);if(position<0)throw new Error();const current=entries[position],bill=historyBill(current);if(!bill||!bill.people[personIndex])throw new Error();bill.people[personIndex].isPaid=!bill.people[personIndex].isPaid;current.people=bill.people;current.totalCents=bill.totalCents;current.text=historyBillText(bill);localStorage.setItem('easy-slip-history',JSON.stringify(entries));if(current.id&&current.id===savedSplitId){split=bill.people.map(p=>({...p}));totalCents=bill.totalCents;renderSplitSummary();}renderHistory(position);}catch{notify('บันทึกสถานะไม่ได้ กรุณาลองใหม่');}}
+$('historyAll').onclick=()=>setHistoryFilter('all');$('historyBills').onclick=()=>setHistoryFilter('bill');$('historyBudgets').onclick=()=>setHistoryFilter('budget');
+$('clearHistory').onclick=()=>{if(!confirm('ล้างประวัติทั้งหมด? รายการที่บันทึกจะถูกลบจากเครื่องนี้'))return;try{localStorage.setItem('easy-slip-history','[]');savedSplitId=null;renderHistory();notify('ล้างประวัติแล้ว');}catch{notify('ล้างประวัติไม่ได้ กรุณาลองใหม่');}};
 
-        <!-- ฟอร์มสำหรับอัปโหลดรูป -->
-        <form id="uploadForm" class="space-y-4">
-            <div class="border-2 border-dashed border-slate-300 rounded-2xl p-6 flex flex-col items-center justify-center bg-slate-50">
-                <div class="w-10 h-10 bg-emerald-700 text-white rounded-full flex items-center justify-center text-xl font-bold mb-2">↑</div>
-                <label for="slipInput" class="text-sm font-medium text-emerald-700 cursor-pointer hover:underline mb-2">
-                    คลิกที่นี่เพื่อเลือกรูปสลิป
-                </label>
-                <input type="file" id="slipInput" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer" required>
-            </div>
 
-            <button type="submit" class="w-full bg-emerald-800 text-white py-3 rounded-xl font-medium hover:bg-emerald-900 transition shadow-md">
-                วิเคราะห์สลิปด้วย AI
-            </button>
-        </form>
+$('budgetAmount').oninput=()=>{const value=Number($('budgetAmount').value);$('budgetAmountPreview').textContent=Number.isFinite(value)&&value>0?'จำนวนเงิน '+money(value):'';};
+function budgetCategoryIcon(name){if(/ออม|เป้าหมาย/.test(name))return '🌱';if(/สำรอง|ฉุกเฉิน/.test(name))return '🛟';if(/เดินทาง/.test(name))return '🚌';if(/ส่วนตัว|ซื้อของ/.test(name))return '🛍️';return '🏠';}
+function renderBudgetPlan(data){
+  $('planHighlight').textContent=money(data.amount);$('planGoal').textContent='เป้าหมาย: '+data.goal;
+  $('allocationBar').replaceChildren();$('allocationLegend').replaceChildren();$('budgetBars').replaceChildren();
+  data.categories.forEach((category,index)=>{
+    const color='budget-color-'+index%4,percent=Number(category.percent);
+    const segment=element('span','allocation-segment '+color);segment.style.flexBasis=Math.max(0,percent)+'%';segment.title=category.name+' '+percent.toFixed(2)+'%';$('allocationBar').append(segment);
+    const legend=element('span','legend-item');legend.append(element('span','legend-dot '+color),element('span','',category.name+' '+percent.toFixed(2)+'%'));$('allocationLegend').append(legend);
+    const card=element('div','budget-row allocation-card '+color),title=element('div','allocation-card-title');title.append(element('span','category-icon',budgetCategoryIcon(category.name)),element('h3','',category.name));card.append(title,element('span','allocation-percent',percent.toFixed(2)+'%'),element('strong','allocation-money',money(category.amount)));$('budgetBars').append(card);
+  });
+  const allocated=data.categories.reduce((sum,category)=>sum+Math.round(category.amount*100),0),total=Math.round(data.amount*100),percentage=data.categories.reduce((sum,category)=>sum+category.percent,0);
+  $('budgetTotal').textContent=money(total/100);$('budgetAllocated').textContent=money(allocated/100);$('budgetRemaining').textContent=money((total-allocated)/100);$('budgetComplete').textContent=allocated===total&&Math.abs(percentage-100)<0.000001?'✓ จัดสรรเงินครบแล้ว':'กรุณาตรวจสัดส่วนการจัดสรร';
+  $('allocationBar').setAttribute('aria-label',data.categories.map(category=>category.name+' '+category.percent.toFixed(2)+'%').join(', '));$('planAdvice').textContent=data.advice;
+}
 
-        <!-- สถานะกำลังโหลด -->
-        <div id="loading" class="hidden mt-4 text-center text-emerald-700 font-medium animate-pulse">
-            กำลังอ่านสลิปด้วย AI กรุณารอสักครู่...
-        </div>
-
-        <!-- กล่องแสดงผลข้อมูลสลิปที่อ่านได้จริง -->
-        <div id="resultCard" class="hidden mt-6 bg-slate-900 text-white p-5 rounded-2xl shadow-lg space-y-3">
-            <div class="flex justify-between items-center text-xs text-slate-400">
-                <span>ยอดโอนเงิน • อ่านจาก AI</span>
-                <span class="bg-emerald-700 text-white px-2 py-0.5 rounded text-[10px]">ตรวจสอบแล้ว</span>
-            </div>
-            <div>
-                <h2 id="resAmount" class="text-3xl font-bold tracking-tight">ผลลัพธ์จาก AI</h2>
-            </div>
-            <div id="resDetails" class="text-xs text-slate-300 space-y-1 border-t border-slate-800 pt-2 whitespace-pre-wrap">
-                <!-- รายละเอียดเพิ่มเติมจะแสดงที่นี่ -->
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const form = document.getElementById('uploadForm');
-        const slipInput = document.getElementById('slipInput');
-        const loading = document.getElementById('loading');
-        const resultCard = document.getElementById('resultCard');
-        const resAmount = document.getElementById('resAmount');
-        const resDetails = document.getElementById('resDetails');
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (slipInput.files.length === 0) {
-                alert('กรุณาเลือกรูปสลิปก่อนครับ');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('slipImage', slipInput.files[0]);
-
-            loading.classList.remove('hidden');
-            resultCard.classList.add('hidden');
-
-            try {
-                const response = await fetch('/api/split-slip', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    resDetails.textContent = data.aiResult;
-                    resultCard.classList.remove('hidden');
-                } else {
-                    alert('เกิดข้อผิดพลาด: ' + data.error);
-                }
-            } catch (err) {
-                console.error(err);
-                alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
-            } finally {
-                loading.classList.add('hidden');
-            }
-        });
-    </script>
-</body>
-</html>
+</script></body></html>

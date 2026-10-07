@@ -1,0 +1,30 @@
+/* Home page only; keep the existing theme, fonts and navigation. */
+#homePage { padding-top:34px; padding-bottom:24px; animation:none; }
+#homePage .brand-icon { margin-bottom:16px; }
+#homePage h1 { margin:4px 0 0; font-size:clamp(26px,7vw,34px); line-height:1.5; }
+#homePage>p { margin:12px 0 28px; max-width:34ch; line-height:1.85; color:#5e7162; }
+#homePage .mode { width:100%; min-height:250px; border-radius:24px; padding:24px; margin:0 0 16px; gap:8px; text-align:left; box-shadow:0 5px 16px #6b80550a; cursor:pointer; }
+#homePage .mode strong { font-size:22px; line-height:1.6; }
+#homePage .mode>span:not(.mode-icon):not(.mode-action) { font-size:14px; line-height:1.85; color:#5e7162; }
+#homePage .mode small { font-size:12px; }
+#homePage .mode-icon { margin-bottom:8px; }
+#homePage .mode .mode-action { align-self:flex-start; margin-top:auto; padding:8px 13px; border-radius:13px; background:#dcebd7; color:#3f6147; font-size:14px; gap:14px; }
+#homePage .mode:nth-of-type(2) .mode-action { background:#f5dfcc; color:#6b5545; }
+#homePage .mode:hover { transform:none; }
+#homePage .mode.selected:hover { background:#edf6eb; }
+#homePage .mode:nth-of-type(2):hover { background:#fff2e9; }
+#homePage .mode:focus-visible,#homePage .history-button:focus-visible { outline:3px solid #5d8565; outline-offset:4px; }
+#homePage .home-secondary { display:flex; flex-direction:column; align-items:center; gap:12px; margin:22px 0 26px; }
+#homePage .history-button { display:inline-flex; justify-content:center; align-items:center; gap:8px; min-height:44px; margin:0; padding:8px 12px; border-radius:12px; font-size:14px; text-decoration:none; color:#516b58; cursor:pointer; }
+#homePage .free { margin:0; }
+#homePage .home-footer { border-top:1px solid #e5e9dd; padding-top:22px; text-align:center; }
+#homePage .home-footer strong { font-size:13px; font-weight:600; color:#5d735f; }
+#homePage .home-footer p { margin:6px 0 0; font-size:12px; line-height:1.8; color:#697869; }
+@media(hover:hover) and (pointer:fine) {
+  #homePage .mode:hover { transform:translateY(-3px); box-shadow:0 9px 22px #6b805512; }
+  #homePage .mode.selected:hover { background:#e7f1e3; }
+  #homePage .mode:nth-of-type(2):hover { background:#ffece0; }
+  #homePage .history-button:hover { background:#eef5e8; }
+}
+@media(max-width:360px) { #homePage { padding:28px 18px 22px; } #homePage .mode { padding:21px; min-height:250px; } #homePage .mode strong { font-size:20px; } }
+@media(prefers-reduced-motion:reduce) { #homePage .mode { transition:none; } #homePage .mode:hover { transform:none; } }

@@ -1,0 +1,39 @@
+/* LINE Seed Sans TH — LY Corp. https://seed.line.me/index_th.html
+   Distributed under the SIL Open Font License 1.1; see fonts/OFL.txt.
+   The official Thai family supplies Regular and Bold, but no Medium/Semibold.
+   Map 500 to Regular and 600 to Bold so all weights use real font files. */
+@font-face {
+  font-family: 'LINE Seed Sans TH';
+  src: url('fonts/LINESeedSansTH_W_Rg.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'LINE Seed Sans TH';
+  src: url('fonts/LINESeedSansTH_W_Bd.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+}
+body {
+  font-family: 'LINE Seed Sans TH', 'Noto Sans Thai', Tahoma, sans-serif;
+  font-weight: 400;
+  line-height: 1.8;
+}
+button, input, textarea, select, input::file-selector-button {
+  font-family: inherit;
+}
+input, textarea, select, p, .hint, .notice, .pre { font-weight: 400; }
+h1, h2, h3, h4, h5, h6, .mode strong { font-weight: 700; line-height: 1.5; }
+button, .primary, .secondary, .goals button, .mode-action,
+.mode .mode-action, input::file-selector-button { font-weight: 600; line-height: 1.65; }
+.mode small, .brand-caption, .upload strong, .equal-option strong,
+.member-name, .member-label { font-weight: 500; }
+.amount, .amount input, .budget-input, .budget-input input,
+.soft strong, .summary-total strong, .split-row strong,
+.member-amount, .bar-label>span:last-child, .allocation-summary strong {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.hint, .pre, .history-card, .notice { line-height: 1.8; }

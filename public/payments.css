@@ -1,0 +1,14 @@
+/* Payment tracking on the existing summary page only. */
+#summaryPage .payment-row { display:grid; grid-template-columns:44px minmax(0,1fr) auto; gap:12px; align-items:center; padding:16px 14px; }
+#summaryPage .payment-person { min-width:0; }
+#summaryPage .payment-name { display:block; font-weight:600; overflow-wrap:anywhere; }
+#summaryPage .payment-amount { display:block; color:var(--muted); font-size:12px; margin-top:4px; font-variant-numeric:tabular-nums; }
+#summaryPage .payment-status { min-height:44px; border:1px solid #eadfc8; border-radius:15px; padding:8px 12px; color:#786137; background:#fff5de; font-size:12px; white-space:nowrap; transition:background .18s; }
+#summaryPage .payment-status:hover { background:#f9ebc9; }
+#summaryPage .payment-status.paid { color:#355e40; background:#dcefdc; border-color:#bedcbe; }
+#summaryPage .payment-status.paid:hover { background:#cde6cd; }
+#summaryPage .payment-summary { background:#f0f7eb; border:1px solid #dce8d4; border-radius:22px; padding:18px; margin:22px 0 10px; }
+#summaryPage .payment-summary p { font-weight:600; color:var(--ink); margin:0 0 10px; }
+#summaryPage .payment-summary>div { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; margin-top:8px; font-size:14px; }
+#summaryPage .payment-summary strong { font-weight:700; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+@media(max-width:380px){#summaryPage .payment-row{grid-template-columns:36px minmax(0,1fr);gap:10px;}#summaryPage .payment-status{grid-column:2;justify-self:start;}#summaryPage .payment-amount{font-size:13px;}}
