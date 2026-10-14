@@ -35,7 +35,7 @@ app.post('/api/split-slip', upload.single('slipImage'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({success:false,error:'กรุณาอัปโหลดรูปสลิป'});
         const result = await readSlip(req.file.buffer);
-            const labels = { amount:'จำนวนเงิน', date:'วันที่', time:'เวลา', sender:'ชื่อผู้โอน', recipient:'ชื่อผู้รับ' };
+            const labels = { amount:'จำนวนเงิน', date:'วันที่', time:'เวลา', sender:'ชื่อผู้โอน', recipient:'ชื่อผู้รับ', reference:'เลขอ้างอิง' };
             const details = Object.entries(result.fields).map(([key,value]) => labels[key] + ': ' + value + (key === 'amount' ? ' บาท' : '')).join('\n');
             res.json({success:true, ...result, aiResult:details || 'ไม่พบข้อมูลที่อ่านได้ กรุณากรอกยอดเอง', needsManualAmount:result.fields.amount === undefined});
         } catch (error) {

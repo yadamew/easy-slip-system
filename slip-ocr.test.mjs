@@ -6,7 +6,7 @@ test('Thai fields and Thai digits',()=>{
     assert.deepEqual(parseSlipText('จำนวนเงิน ๑,๒๔๐.๐๐ บาท\nวันที่ 23 ก.ย. 2569\nเวลา 18:42\nชื่อผู้โอน: สมชาย ใจดี\nชื่อผู้รับ: สมหญิง ใจดี'),{amount:1240,date:'23 ก.ย. 2569',time:'18:42',sender:'สมชาย ใจดี',recipient:'สมหญิง ใจดี'});
 });
 test('partial fields do not fabricate names or amount',()=>{
-    assert.deepEqual(parseSlipText('Date: 23/09/2026\nTime: 18:42\nReference: 123456789'),{date:'23/09/2026',time:'18:42'});
+    assert.deepEqual(parseSlipText('Date: 23/09/2026\nTime: 18:42\nReference: 123456789'),{date:'23/09/2026',time:'18:42',reference:'123456789'});
     assert.deepEqual(parseSlipText(''),{});
 });
 test('ambiguous unlabeled amounts require manual entry',()=>assert.equal(parseSlipText('120.00\n350.00').amount,undefined));

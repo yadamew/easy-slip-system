@@ -11,3 +11,13 @@ Upload JPEG, PNG or WebP up to 10 MB. Images over 20 million pixels or damaged i
 The endpoint returns `fields` with only detected values (`amount`, `date`, `time`, `sender`, `recipient`), `rawText`, `confidence`, `needsManualAmount`, `source`, `qrDetected`, optional `warning`/`qrNotice`, and the existing `aiResult` text for compatibility. Missing language data or OCR failure preserves any QR fields and allows manual entry. Invalid uploads remain errors, but the frontend opens its existing manual amount card so users can continue. Always review the extracted values against the original slip before confirming the split.
 
 `npm.cmd test` starts the actual server and tests the endpoint with QR images, QR-to-OCR fallback, generated text images, empty images and invalid uploads while external fetch is blocked. It also tests all four existing budget goals and upload/manual-review/split UI handlers. The `qrcode` development dependency generates test images only.
+
+## Multi-format improvements
+
+`slip-parser.js` separates Thai/English amounts, validated numeric/Thai/English dates, time, labelled sender/recipient names and references. `dateISO` normalizes BE/CE dates without replacing the displayed source date. Recent two-digit years 40–99 are interpreted as BE and 00–39 as CE; ambiguous or unusual dates require review.
+
+The OCR pipeline flattens transparency, applies EXIF rotation, bounds resolution, enlarges small images, detects dark backgrounds, normalizes contrast and sharpens. If the first pass has no amount or low confidence, it tries thresholding and sparse-text segmentation. Conflicting OCR amounts require manual entry. Results always require user review and never certify a genuine transfer.
+
+`slip-formats.test.mjs` contains synthetic OCR transcripts labelled K PLUS, SCB, Krungthai, Bangkok Bank, Krungsri, GSB, TrueMoney and generic wallet. These test extraction rules, not real bank screenshot recognition. No actual K PLUS new-layout image has been supplied, so support for that layout is **not verified**. Provide redacted real screenshots for each layout before claiming coverage.
+
+Run `bash verify-linux.sh` on Linux (or WSL) for an isolated fresh Node/dependency installation and actual QR/OCR endpoint tests. It copies only listed app files and assets, never `.env`. This checks Linux compatibility, not the deployed Render service's memory limits or performance.

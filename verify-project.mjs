@@ -66,6 +66,18 @@ try {
     assert.equal(ocr.fields.date, '23/09/2026');
     assert.ok(ocr.fields.sender.includes('Alice'));
     assert.ok(ocr.fields.recipient.includes('Bob'));
+    assert.equal(ocr.verified,false);
+    assert.equal(ocr.dateISO,'2026-09-23');
+    for (const [label,variant,type] of [
+        ['small/dark',await sharp(image).resize({width:700}).negate({alpha:false}).png().toBuffer(),'image/png'],
+        ['JPEG',await sharp(image).jpeg({quality:80}).toBuffer(),'image/jpeg']
+    ]) {
+        const response=await slip(new Blob([variant],{type}));
+        assert.equal(response.status,200,label);
+        const read=await response.json();
+        assert.equal(read.fields.amount,1240,label);
+        assert.equal(read.verified,false);
+    }
     const blank = await sharp({create:{width:300,height:200,channels:3,background:'white'}}).png().toBuffer();
     const empty = await (await slip(new Blob([blank],{type:'image/png'}))).json();
     assert.equal(empty.success,true);
