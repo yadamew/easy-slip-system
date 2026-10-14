@@ -9,7 +9,7 @@ try {
  for(let i=0;i<2;i++){const result=await readSlip(image);assert.equal(result.fields.amount,1250);}
  // Exercise the two-pass path as well, at the maximum preprocessed dimensions.
  const blank=await sharp({create:{width:1600,height:2400,channels:3,background:'white'}}).png().toBuffer();
- const result=await readSlip(blank);assert.equal(result.fields.amount,undefined);assert.equal(result.ocrPasses,2);
+ const result=await readSlip(blank);assert.equal(result.fields.amount,undefined);assert.equal(result.ocrPasses,3);
  const peak=Math.max(sampled,process.resourceUsage().maxRSS*1024)/1024/1024;
  console.log(`OCR resource probe: peak RSS ${peak.toFixed(1)} MiB; elapsed ${((Date.now()-start)/1000).toFixed(1)} s; sequential requests, no Render CPU throttling.`);
  console.log(peak<400?'RAM probe has headroom below 512 MiB for these synthetic fixtures.':'Render Free RAM headroom not established; inspect actual workload before deploy.');

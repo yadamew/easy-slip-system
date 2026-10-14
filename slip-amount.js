@@ -1,5 +1,5 @@
 export const MANUAL_AMOUNT_MESSAGE='ไม่สามารถยืนยันยอดเงินอัตโนมัติ กรุณาตรวจสอบและกรอกยอดเงิน';
-const positive='จำนวนเงินที่โอน|จำนวนเงิน|จำนวนที่โอน|ยอดเงินโอน|ยอดโอน|ยอดชำระ|ยอดจ่าย|ยอดเงิน|Transfer\\s+Amount|Payment\\s+Amount|Total\\s+Paid|Paid\\s+Amount|Amount|Total';
+const positive='จำนวนเงินที่โอน|จำนวนเงิน|จำนวนที่โอน|ยอดเงินโอน|ยอดโอน|ยอดชำระ|ยอดจ่าย|ยอดเงิน|โอนเงินสำเร็จ|Transfer\\s+Amount|Payment\\s+Amount|Transfer\\s+Successful|Total\\s+Paid|Paid\\s+Amount|Amount|Total';
 const negative='ค่าธรรมเนียม|ยอดเงินคงเหลือ|ยอดคงเหลือ|เงินคงเหลือ|ยอดรวมค่าธรรมเนียม|เบอร์โทร(?:ศัพท์)?|หมายเลขโทรศัพท์|เลขบัญชี|บัญชี|เลข(?:ที่)?อ้างอิง|หมายเลข(?:อ้างอิง|รายการ|ธุรกรรม)|รหัส(?:อ้างอิง|รายการ)|Reference(?:\\s+(?:Number|No\\.?|ID))?|Transaction\\s+(?:ID|No\\.?|Number)|Ref\\.?|Fee|Balance|Remaining|Account|Phone|Mobile|วันที่|Date|เวลา|Time';
 const markerPattern=new RegExp(negative+'|'+positive,'gi');
 const isNegative=new RegExp('^(?:'+negative+')$','i');
@@ -18,14 +18,15 @@ export function extractSlipAmount(text){
   const line=lines[i],contexts=markers(line);
   for(const match of line.matchAll(/(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?/g)){
    const start=match.index,end=start+match[0].length,before=line.slice(0,start),after=line.slice(end);
-   if(/[\dA-Za-z.,:/-]$/.test(before)||/^[\dA-Za-z.,:/-]/.test(after))continue;
+   const currencyBefore=/(?:฿|THB)\s*$/i.test(before),currencyAfter=/^\s*(?:บาท|THB|฿)(?=\s|$)/i.test(after);
+   if(/[\dA-Za-z.,:/-]$/.test(before)&&!currencyBefore||/^[\dA-Za-z.,:/-]/.test(after)&&!currencyAfter)continue;
    const value=Number(match[0].replaceAll(',',''));if(value<=0||!Number.isSafeInteger(Math.round(value*100)))continue;
    const owner=contexts.filter(c=>c.end<=start).at(-1);
    if(owner?.negative)continue;
-   const currency=/(?:฿|THB)\s*$/i.test(before)||/^\s*(?:บาท|THB|฿)(?=\s|$)/i.test(after);
+   const currency=currencyBefore||currencyAfter;
    const standalone=/^(?:฿\s*|THB\s*)?[\d,.]+(?:\s*(?:บาท|THB|฿))?$/i.test(line);
    let score=0,reason='';
-   if(owner&&!owner.negative){score=/^total$/i.test(line.slice(owner.start,owner.end))?92:96;reason='label';}
+   if(owner&&!owner.negative){const label=line.slice(owner.start,owner.end);const status=/โอนเงินสำเร็จ|Transfer\s+Successful/i.test(label);score=status?88:/^total$/i.test(label)?92:96;reason=status?'transfer status':'label';}
    else if(standalone){
     if(positiveOnly.test(lines[i-1]||'')){score=94;reason='adjacent label';}
     else if(labelOnly.test(lines[i-1]||'')||labelOnly.test(lines[i+1]||''))continue;

@@ -5,7 +5,7 @@ export function reconcileSlipReadings(readings,qr={fields:{}}){
  for(const reading of [...readings].sort((a,b)=>b.confidence-a.confidence)){
   const parsed=parseSlipText(reading.text);for(const [key,value] of Object.entries(parsed))if(key!=='amount'&&fields[key]===undefined)fields[key]=value;
   const amount=extractSlipAmount(reading.text);
-  if(amount.amount!==undefined&&reading.confidence>=40)candidates.push({amount:amount.amount,score:Math.round(amount.score*.7+reading.confidence*.3)});
+  if(amount.amount!==undefined&&(reading.confidence>=40||amount.score>=90&&reading.confidence>=30))candidates.push({amount:amount.amount,score:Math.round(amount.score*.7+reading.confidence*.3)});
  }
  candidates.sort((a,b)=>b.score-a.score);const best=candidates[0];
  const competing=candidates.find(c=>best&&c.amount!==best.amount);

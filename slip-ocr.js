@@ -49,6 +49,14 @@ export async function readSlip(buffer) {
                     const alternate=await worker.recognize(await sharp(image).threshold(165).png().toBuffer());
                     readings.push(alternate.data);
                     if(alternate.data.confidence>data.confidence)data=alternate.data;
+                    // Thresholding can erase Thai marks/thin digits. Retry sparse layout
+                    // on grayscale only when neither existing pass found an amount.
+                    if(ocrFields.amount===undefined&&parseSlipText(alternate.data.text).amount===undefined){
+                        passes++;
+                        const grayscale=await worker.recognize(image);
+                        readings.push(grayscale.data);
+                        if(grayscale.data.confidence>data.confidence)data=grayscale.data;
+                    }
                 } catch { /* Preserve the first reading if the optional second pass fails. */ }
             }
             const result=reconcileSlipReadings(readings,qr);
