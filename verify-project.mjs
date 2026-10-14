@@ -71,6 +71,7 @@ try {
     for (const [label,variant,type] of [
         ['small/dark',await sharp(image).resize({width:700}).negate({alpha:false}).png().toBuffer(),'image/png'],
         ['JPEG',await sharp(image).jpeg({quality:80}).toBuffer(),'image/jpeg']
+        ,['WebP',await sharp(image).webp({quality:85}).toBuffer(),'image/webp']
     ]) {
         const response=await slip(new Blob([variant],{type}));
         assert.equal(response.status,200,label);
@@ -83,6 +84,7 @@ try {
     assert.equal(empty.success,true);
     assert.deepEqual(empty.fields,{});
     assert.equal(empty.needsManualAmount,true);
+    assert.equal(empty.warning,'ไม่สามารถยืนยันยอดเงินอัตโนมัติ กรุณาตรวจสอบและกรอกยอดเงิน');
     // QR with a supported local amount: OCR need not understand the QR graphic.
     const payload='000201530376454071240.006304';
     const qrImage=await QRCode.toBuffer(payload+crc16(payload),{width:500,margin:4});

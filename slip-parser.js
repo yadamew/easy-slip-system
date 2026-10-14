@@ -1,7 +1,6 @@
+import {normalizeSlipText,extractSlipAmount} from './slip-amount.js';
 const excludedMoney = /ค่าธรรมเนียม|ยอดคงเหลือ|เงินคงเหลือ|ยอดเงินคงเหลือ|ยอดรวมค่าธรรมเนียม|fee|balance|remaining|account|บัญชี|อ้างอิง|reference|ref\b|transaction\s*(?:id|no)|วันที่|date|เวลา|time/i;
 const amountLabel = /(?:จำนวนเงิน(?:ที่โอน)?|ยอด(?:เงิน)?(?:โอน|ชำระ|จ่าย)|ยอดเงิน|จำนวนที่โอน|โอนเงิน|transfer\s*amount|payment\s*amount|paid\s*amount|amount|total)/i;
-const numberToken = '(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d{1,2})?';
-const valueLine = new RegExp('^(?:(?:฿|THB)\\s*)?('+numberToken+')(?:\\s*(?:บาท|THB|฿))?$', 'i');
 const months = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 const shortMonths = ['มค','กพ','มีค','เมย','พค','มิย','กค','สค','กย','ตค','พย','ธค'];
 const englishMonths = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
@@ -24,29 +23,16 @@ export function parseSlipDate(input){
  return {raw,iso:date.toISOString().slice(0,10)};
 }
 export function parseSlipText(rawText){
- const lines=clean(rawText).split(/\r?\n/).map(l=>l.trim().replace(/[ \t]+/g,' ')).filter(Boolean),fields={},labelled=[],currency=[];
- const numberAtStart=new RegExp('^(?:(?:฿|THB)\\s*)?('+numberToken+')(?![\\d.,])','i');
- for(let i=0;i<lines.length;i++){
-  const line=lines[i];if(excludedMoney.test(line))continue;
-  const label=line.match(amountLabel);let value;
-  if(label){const tail=line.slice(label.index+label[0].length).replace(/^\s*[:：-]?\s*/,'');value=tail.match(numberAtStart)?.[1];if(!tail)value=lines[i+1]?.match(valueLine)?.[1];}
-  if(value){labelled.push(Number(value.replaceAll(',','')));continue;}
-  const cur=line.match(new RegExp('(?:฿|THB)\\s*('+numberToken+')(?![\\d.,])','i'))||line.match(new RegExp('('+numberToken+')\\s*(?:บาท|THB|฿)(?=\\s|$)','i'));
-  // A value following an excluded label belongs to that label, not the transfer.
-  if(cur&&!excludedMoney.test(lines[i-1]||''))currency.push(Number(cur[1].replaceAll(',','')));
- }
- const amounts=labelled.length?labelled:currency;
- const valid=amounts.filter(n=>n>0&&Number.isFinite(n)&&Number.isSafeInteger(Math.round(n*100)));
- if(new Set(valid).size===1)fields.amount=valid[0];
- // Unlabelled decimals: only a unique standalone value, never dates/accounts/fees.
- if(!amounts.length){const decimals=lines.flatMap((line,i)=>!excludedMoney.test(line)&&!excludedMoney.test(lines[i-1]||'')&&/^\d[\d,]*\.\d{2}(?:\s*(?:บาท|THB))?$/.test(line)?[Number(line.match(/[\d,.]+/)[0].replaceAll(',',''))]:[]).filter(n=>n>0&&Number.isSafeInteger(Math.round(n*100)));if(new Set(decimals).size===1)fields.amount=decimals[0];}
+ const normalized=normalizeSlipText(rawText);
+ const lines=normalized.split(/\r?\n/).map(line=>line.trim()).filter(Boolean),fields={};
+ const extraction=extractSlipAmount(normalized);if(extraction.amount!==undefined)fields.amount=extraction.amount;
  for(const line of lines){if(/อ้างอิง|reference|transaction\s*(?:id|no)|บัญชี|account/i.test(line))continue;const date=parseSlipDate(line);if(date){fields.date=date.raw;break;}}
  for(const line of lines){
   if(/อ้างอิง|reference|บัญชี|account/i.test(line))continue;
   const t=line.match(/\b([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?\s*(AM|PM)?\b/i)||line.match(/(?:เวลา|time)\s*[:：]?\s*([01]?\d|2[0-3])[.]([0-5]\d)(?:[.]([0-5]\d))?/i);
   if(t){let hour=Number(t[1]);if(t[4]){if(hour<1||hour>12)continue;hour=hour%12+(/pm/i.test(t[4])?12:0);}fields.time=String(hour).padStart(2,'0')+':'+t[2]+(t[3]?':'+t[3]:'');break;}
  }
- const patterns={sender:/^(?:ชื่อผู้โอน|ผู้โอน(?:เงิน)?|ผู้ส่ง(?:เงิน)?|โอนจาก|จาก|sender(?:\s*name)?|from)\s*[:：-]?\s*(.*)$/i,recipient:/^(?:ชื่อผู้รับ|ผู้รับ(?:เงิน)?|โอนไปยัง|ไปยัง|ถึง|รับโดย|recipient(?:\s*name)?|receiver(?:\s*name)?|to)\s*[:：-]?\s*(.*)$/i};
+ const patterns={sender:/^(?:ชื่อผู้โอน|ผู้โอน(?:เงิน)?|ผู้ส่ง(?:เงิน)?|โอนจาก|จาก|sender(?:\s*name)?|from)\s*[:：-]?\s*(.*)$/i,recipient:/^(?:ชื่อผู้รับ|ผู้รับ(?:เงิน)?|โอนไปยัง|ไปยัง|ถึง|รับโดย|recipient(?:\s*name)?|receiver(?:\s*name)?|to(?=\s|[:：-]|$))\s*[:：-]?\s*(.*)$/i};
  for(const [key,pattern] of Object.entries(patterns)){
   for(let i=0;i<lines.length;i++){const match=lines[i].match(pattern);if(!match)continue;const candidates=match[1]?[match[1]]:lines.slice(i+1,i+4);for(const name of candidates){if(/^(?:ธนาคาร|bank\b|กสิกร|ไทยพาณิชย์|กรุงไทย|กรุงศรี|ออมสิน|กรุงเทพ)/i.test(name))continue;if(!/[\p{L}]/u.test(name)||excludedMoney.test(name)||amountLabel.test(name)||Object.values(patterns).some(p=>p.test(name)))break;fields[key]=name;break;}break;}
  }

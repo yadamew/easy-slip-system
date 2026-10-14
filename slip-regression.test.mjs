@@ -1,0 +1,15 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {parseSlipText} from './slip-parser.js';
+import {extractSlipAmount,MANUAL_AMOUNT_MESSAGE} from './slip-amount.js';
+import {reconcileSlipReadings} from './slip-result.js';
+for(const value of ['1,250.00','฿1,250.00','1250.00 THB','1 250.00','1 , 250 . 00','๑ ๒๕๐.๐๐'])test('amount normalization: '+value,()=>assert.equal(parseSlipText('จำนวนเงิน '+value).amount,1250));
+for(const text of ['Total Paid 1,250.00','จำนวนเงิน 1,250.00 วันที่ 14/10/2569 เวลา 18:42','วันที่ 14/10/2569\n1,250.00','1,250.00\nจำนวนเงิน','Amount\nTransfer completed\n1,250.00'])test('previous parser regression: '+text,()=>assert.equal(parseSlipText(text).amount,1250));
+test('Total Paid is not a recipient name',()=>assert.equal(parseSlipText('Total Paid 1,250.00').recipient,undefined));
+test('mixed same-line amounts use labels rather than magnitude',()=>assert.equal(parseSlipText('จำนวนเงิน 1,250.00 ค่าธรรมเนียม 10.00 ยอดคงเหลือ 99,000.00').amount,1250));
+test('labelled amount wins over larger unlabelled currency',()=>assert.equal(extractSlipAmount('Payment Amount: 1250.00\nTHB 99000.00').amount,1250));
+for(const text of ['Phone: 0812345678','Account 1234567890','เลขอ้างอิง 1234.56','Balance\n99000.00 THB','Fee 10.00','เวลา 18:42','จำนวนเงิน 0.00','ยอดชำระ 1,250.00\nยอดโอน 2,500.00'])test('do not confirm unsafe candidate: '+text,()=>assert.equal(extractSlipAmount(text).amount,undefined));
+test('weak second pass must not discard a well-supported first pass',()=>assert.equal(reconcileSlipReadings([{text:'Amount 1250.00',confidence:95},{text:'999.00',confidence:45}]).fields.amount,1250));
+test('equally credible conflicting OCR passes require manual correction',()=>{const result=reconcileSlipReadings([{text:'Amount 1250.00',confidence:90},{text:'Amount 1500.00',confidence:90}]);assert.equal(result.fields.amount,undefined);assert.equal(result.warning,MANUAL_AMOUNT_MESSAGE);});
+test('QR/text conflicts require manual correction',()=>{const result=reconcileSlipReadings([{text:'Amount 1250.00',confidence:90}],{fields:{amount:1500}});assert.equal(result.fields.amount,undefined);assert.equal(result.warning,MANUAL_AMOUNT_MESSAGE);});
+test('blurry OCR must not produce a confirmed amount or zero',()=>{const result=reconcileSlipReadings([{text:'Amount 1250.00',confidence:15}]);assert.equal(result.fields.amount,undefined);assert.equal(result.warning,MANUAL_AMOUNT_MESSAGE);assert.equal(result.verified,false);});

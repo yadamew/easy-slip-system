@@ -11,7 +11,9 @@ const fixtures=[
  ['Krungsri labelled','Krungsri\nยอดชำระ 1,240.00 บาท\nค่าธรรมเนียม 10.00\n23 กันยายน 2569\n18:42\nโอนจาก: สมชาย\nโอนไปยัง: สมหญิง\nเลขอ้างอิง BAY123456'],
  ['GSB labelled','MyMo GSB\nยอดเงิน 1,240.00 บาท\nยอดคงเหลือ 8800.00\n23.09.2569\n18:42\nผู้ส่งเงิน: สมชาย\nรับโดย: สมหญิง\nหมายเลขอ้างอิง GSB123456'],
  ['TrueMoney labelled','TrueMoney Wallet\nจำนวนเงิน 1,240.00 บาท\nค่าธรรมเนียม\n15.00 บาท\n23 ก.ย. 69\n18:42\nผู้ส่ง: สมชาย\nผู้รับ: สมหญิง\nหมายเลขธุรกรรม TMN123456'],
- ['generic wallet labelled','Wallet\nPayment Amount: 1,240.00 THB\nRemaining balance 9900.00\n23/09/2026\n18:42\nSender Name: Alice\nReceiver Name: Bob\nReference: WAL123456']
+ ['generic wallet labelled','Wallet\nPayment Amount: 1,240.00 THB\nRemaining balance 9900.00\n23/09/2026\n18:42\nSender Name: Alice\nReceiver Name: Bob\nReference: WAL123456'],
+ ['ttb labelled','ttb touch\nTotal Paid 1 240.00 THB\nBalance 9800.00\n23/09/2026\n18:42\nFrom: Alice\nTo: Bob\nReference TTB123456'],
+ ['BAAC labelled','BAAC Mobile\nยอดโอน 1,240.00 บาท\nค่าธรรมเนียม 5.00\n23 กันยายน 2569\nเวลา 18.42\nผู้โอน: สมชาย\nผู้รับ: สมหญิง\nเลขอ้างอิง BAAC123456']
 ];
 for(const [name,text] of fixtures)test(`synthetic transcript: ${name}`,()=>{
  const result=parseSlipText(text);assert.equal(result.amount,1240);assert.equal(parseSlipDate(result.date)?.iso,'2026-09-23');assert.equal(result.time,'18:42');assert.ok(result.sender);assert.ok(result.recipient);assert.ok(result.reference);

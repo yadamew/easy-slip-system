@@ -31,4 +31,8 @@ Local checks: `npm test` and `node --test lan-network.test.mjs` after installing
 
 Hosting compatibility has been checked locally; actual Linux/Render build and resource limits still need confirmation during deployment. No deploy, commit, push, database, or UI changes are part of this preparation.
 
+## OCR on Free compute
+
+Render Free provides 512 MB RAM and 0.1 CPU (https://render.com/docs/compute-plans). The OCR pipeline now limits processing to one worker, 1600×2400 preprocessed pixels and a 16 MiB sharp cache. `bash verify-linux.sh` tests a fresh Linux install and reports peak RSS for synthetic OCR workloads. Free-instance CPU throttling, cold starts and real-image resource use must still be checked on the deployed service. The build/start commands above remain unchanged; no persistent disk or paid API is required.
+
 References: https://render.com/docs/deploy-node-express-app and https://render.com/docs/node-version
