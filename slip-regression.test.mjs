@@ -16,3 +16,6 @@ test('blurry OCR must not produce a confirmed amount or zero',()=>{const result=
 for(const text of ['โอนเงินสำเร็จ 1250.00','โอนเงินสำเร็จ\n1250.00','THB1250.00','1250.00THB','฿1250.00'])test('new receipt wording/currency: '+text,()=>assert.equal(parseSlipText(text).amount,1250));
 test('strong amount context survives moderately poor overall Thai OCR, with review warning',()=>{const result=reconcileSlipReadings([{text:'จำนวนเงิน 1250.00',confidence:32}]);assert.equal(result.fields.amount,1250);assert.ok(result.warning);assert.equal(result.verified,false);});
 test('transfer success heading does not turn a phone number into amount',()=>assert.equal(parseSlipText('โอนเงินสำเร็จ 0812345678').amount,undefined));
+
+for (const text of ['THB\n1250','฿\n1250','บาท\n1250','จำนวนเงิน\n1250\n.00','ยอดโอน\n1 250\n.00']) test('split currency/decimal OCR: '+text,()=>assert.equal(parseSlipText(text).amount,1250));
+for (const text of ['เลขบัญชี\n1234567890\n.00','วันที่\n14/10/2569','เวลา\n18:42','THB\n0.00','เลขอ้างอิง\n1250\n.00']) test('split OCR remains manual: '+text,()=>assert.equal(parseSlipText(text).amount,undefined));
