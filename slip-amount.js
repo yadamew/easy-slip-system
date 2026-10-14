@@ -9,6 +9,8 @@ export function normalizeSlipText(text){
  let result=String(text).normalize('NFKC').replace(/\u0e4d\u0e32/g,'ำ').replace(/[๐-๙]/g,d=>String('๐๑๒๓๔๕๖๗๘๙'.indexOf(d))).replace(/[\u200b\ufeff]/g,'').replace(/\u00a0/g,' ');
  for(const label of ['จำนวนเงินที่โอน','จำนวนเงิน','ยอดเงินคงเหลือ','ยอดคงเหลือ','ค่าธรรมเนียม','ยอดโอน','ยอดชำระ','ยอดเงิน'])result=result.replace(new RegExp(label.split('').join('[ \\t]*'),'g'),label);
  result=result.replace(/(\d)[ \t]*([,.])[ \t]*(?=\d)/g,'$1$2');
+ // Join only decimal fragments (never arbitrary numeric lines such as dates/accounts).
+ result=result.replace(/(\d)[ \t]*\r?\n[ \t]*(\.\d{2})(?=\s|$)/g,'$1$2');
  return result.replace(/\b\d{1,3}(?:[ \t]+\d{3})+(?:\.\d{1,2})?\b/g,value=>value.replace(/[ \t]+/g,','));
 }
 function markers(line){return [...line.matchAll(new RegExp(markerPattern))].map(m=>({start:m.index,end:m.index+m[0].length,negative:isNegative.test(m[0])}));}
@@ -32,7 +34,7 @@ export function extractSlipAmount(text){
     else if(labelOnly.test(lines[i-1]||'')||labelOnly.test(lines[i+1]||''))continue;
     else if(positiveOnly.test(lines[i+1]||'')){score=94;reason='adjacent label';}
     else if(i>1&&positiveOnly.test(lines[i-2])&&!markers(lines[i-1]).length&&!/\d/.test(lines[i-1])){score=88;reason='near label';}
-    else if(currency||/^(?:บาท|THB|฿)$/i.test(lines[i+1]||'')){score=82;reason='currency';}
+    else if(currency||/^(?:บาท|THB|฿)$/i.test(lines[i+1]||'')||/^(?:บาท|THB|฿)$/i.test(lines[i-1]||'')){score=82;reason='currency';}
     else if(/\.\d{2}$/.test(match[0])){score=72;reason='standalone decimal';}
    }else if(currency){score=80;reason='currency';}
    // Unlabelled long integers can be a phone/account/reference even beside THB.
